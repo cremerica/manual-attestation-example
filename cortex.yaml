@@ -1,0 +1,11 @@
+openapi: 3.0.1
+info:
+  title: Manual Attestation Example
+  description: ""
+  x-cortex-tag: manual-attestation-example
+  x-cortex-git:
+    github:
+      repository: cremerica/manual-attestation-example
+  x-cortex-custom-metadata:
+    cortex-template-version: 0.1.0
+    cortex-generated-timestamp: 2023-06-05T14:22:31.906797491
