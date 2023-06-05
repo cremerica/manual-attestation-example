@@ -1,4 +1,4 @@
-import type React from "react";
+import React from "react";
 import {
   Box,
   Button,
@@ -9,16 +9,48 @@ import {
 } from "@cortexapps/plugin-core/components";
 import "../baseStyles.css";
 import ErrorBoundary from "./ErrorBoundary";
-import { useCallback, useState } from "react";
-import { getCortexContext } from "../api/Cortex";
+
+import { CortexApi } from "@cortexapps/plugin-core";
+
+const getServiceTag = async (): Promise<string> => {
+  const context = await CortexApi.getContext();
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const serviceTag = context.entity!.tag;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  return serviceTag as string;
+};
+
+const getServiceUser = async (): Promise<string> => {
+  const context = await CortexApi.getContext();
+  const serviceUser = context.user.name;
+  return serviceUser as string;
+}
 
 const App: React.FC = () => {
-  const [cortexContext, setCortexContext] = useState<any>(null);
+ 
+  const postData = async () => { 
+    console.log("about to use effect")
+    React.useEffect(() => {
+      console.log("about to get the serviceuser")
+      const serviceUser = getServiceUser();
+      console.log(serviceUser)
+      const serviceTag = getServiceTag();
+      console.log(serviceTag)    
+      const response =  CortexApi.proxyFetch(`https://api.getcortexapp.com/api/v1/catalog/${serviceTag}/custom-data`, {
+        method: 'POST',
+        body: JSON.stringify({
+        Description: "Manual Attestation",
+        body: `key: Attestation, value: {user: ${serviceUser}`
 
-  const fetchContext = useCallback(async () => {
-    const context = await getCortexContext();
-    setCortexContext(context);
+      })
+      }
+    );
+    const resultJson = JSON.stringify(response);
+    console.log({resultJson});
   }, []);
+   
+  
+  }
 
   return (
     <ErrorBoundary>
@@ -29,18 +61,13 @@ const App: React.FC = () => {
           <Box>
             <Button
               onClick={() => {
-                void fetchContext();
+                postData();
               }}
             >
-              View context
+              Attest
             </Button>
           </Box>
-          {Boolean(cortexContext) && (
-            <>
-              <Title level={2}>Plugin context</Title>
-              <pre>{JSON.stringify(cortexContext, null, 2)}</pre>
-            </>
-          )}
+          
         </Stack>
       </ThemeProvider>
     </ErrorBoundary>
