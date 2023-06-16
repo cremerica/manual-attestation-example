@@ -27,28 +27,28 @@ const getServiceUser = async (): Promise<string> => {
 }
 
 const App: React.FC = () => {
- 
-  const postData = async () => { 
+    const postData = async () => { 
     console.log("about to use effect")
-    React.useEffect(() => {
-      console.log("about to get the serviceuser")
-      const serviceUser = getServiceUser();
-      console.log(serviceUser)
-      const serviceTag = getServiceTag();
-      console.log(serviceTag)    
-      const response =  CortexApi.proxyFetch(`https://api.getcortexapp.com/api/v1/catalog/${serviceTag}/custom-data`, {
+    console.log("about to get the serviceuser")
+    const serviceUser = await getServiceUser();
+    console.log(serviceUser)
+    const serviceTag = await getServiceTag();
+    console.log(serviceTag)    
+    const response =  CortexApi.proxyFetch(`https://api.getcortexapp.com/api/v1/catalog/${serviceTag}/custom-data`, {
         method: 'POST',
         body: JSON.stringify({
-        Description: "Manual Attestation",
-        body: `key: Attestation, value: {user: ${serviceUser}`
-
+          "key" : "Attestation", 
+          "value": { "user": serviceUser, "date" : Date() }
       })
       }
-    );
+    );    
+    const ff = (await response).status;
+    console.log(ff);
     const resultJson = JSON.stringify(response);
     console.log({resultJson});
-  }, []);
-   
+    
+    
+       
   
   }
 
@@ -57,11 +57,13 @@ const App: React.FC = () => {
       <ThemeProvider>
         <Stack>
           <Logo />
-          <Title level={1}>My Awesome Cortex Plugin</Title>
+          <Title level={1}>Compliance Attestation</Title>
           <Box>
-            <Button
+            <p>By clicking on Attest you are attesting that you followed the checklist</p>
+            <Button type="submit"
               onClick={() => {
                 postData();
+                
               }}
             >
               Attest
